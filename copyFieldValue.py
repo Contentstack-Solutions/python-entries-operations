@@ -28,8 +28,11 @@ locales = [locale] # If you choose to publish, it will publish on these language
 entries = cma.getAllEntries(contentType, locale)
 
 for entry in entries['entries']:
-    entry[destField] = entry[sourceField]
-    body = {'entry': entry}
-    updatedEntry = cma.updateEntry(contentType, locale, body)
-    if publishEntries:
-        cma.publishEntry(contentType, entry['uid'], environments, locales, locale, updatedEntry['entry']['_version'])
+    try:
+        entry[destField] = entry[sourceField]
+        body = {'entry': entry}
+        updatedEntry = cma.updateEntry(contentType, locale, body)
+        if publishEntries:
+            cma.publishEntry(contentType, entry['uid'], environments, locales, locale, updatedEntry['entry']['_version'])
+    except KeyError:
+        config.logging.warning('{}KeyError - Possibly the source field ({}) does not exist in the content type schema, or does not have any value for this entry: {}{}'.format(config.YELLOW, sourceField, entry['uid'], config.END))
