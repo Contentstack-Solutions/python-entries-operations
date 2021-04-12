@@ -1,5 +1,5 @@
 '''
-Get all content types
+Get a single content type
 
 oskar.eiriksson@contentstack.com
 '''
