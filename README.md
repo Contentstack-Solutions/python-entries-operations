@@ -7,6 +7,8 @@ Scripts in this repository:
 * Create an Entry - `createEntry.py`
 * Delete All Entries of a Content Type - `deleteAllEntriesofContentType.py` (Be careful with this one)
 * Get all entries - `getAllEntries.py`
+* Publish all Entries - `publishAllEntries.py`
+* Publish all Entries of a Certain Content Type - `publishAllEntriesFromContentType.py`
 * Get a Single Entry - `getSingleEntry.py`
 * Use a Query to Find an Entry - `queryEntries.py`
 
