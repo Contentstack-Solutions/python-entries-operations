@@ -4,6 +4,7 @@ Gets all entries of a certain content type in a defined language
 oskar.eiriksson@contentstack.com
 '''
 
+import json
 import cma
 import config
 
@@ -16,5 +17,5 @@ entries = cma.getAllEntries(contentType, locale, environment)
 config.logging.info('Total Number of Entries in Response: {}'.format(entries['count']))
 
 for entry in entries['entries']:
-    print(entry)
+    print(json.dumps(entry, indent=1))
     print('---')

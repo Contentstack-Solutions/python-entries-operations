@@ -5,6 +5,7 @@ Note: Queries documented inside the Content Delivery API docs: https://www.conte
 oskar.eiriksson@contentstack.com
 '''
 
+import json
 import cma
 import config
 
@@ -15,8 +16,8 @@ environment = None
 
 entries = cma.getAllEntries(contentType, locale, environment, query)
 
-config.logging.info('Number of Entries Found: {}'.format(entries['count']))
-
-for entry in entries['entries']:
-    print(entry)
-    print('----')
+if entries:
+    config.logging.info('Number of Entries Found: {}'.format(entries['count']))
+    for entry in entries['entries']:
+        print(json.dumps(entry, indent=1))
+        print('----')
