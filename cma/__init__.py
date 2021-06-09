@@ -263,4 +263,18 @@ def publishEntry(contentType, uid, environments, locales, locale, version):
     }
     return typicalCreate(body, url, 'entry', False, uid + ' - ' + locale + ' published')
     
+def createContentType(body):
+    '''
+    Creates a content type
+    sample url: https://api.contentstack.io/v3/content_types
+    '''
+    url = '{}v3/content_types'.format(region)
+    return typicalCreate(body, url, 'content_type')
 
+def updateContentType(body, contentType):
+    '''
+    Updates a content type
+    sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}
+    '''
+    url = '{}v3/content_types/{}'.format(region, contentType)
+    return typicalUpdate(body, url, 'content_type')
