@@ -30,8 +30,10 @@ e.g. `variables.env` file:
 CS_REGION=NA (Either NA or EU)
 CS_APIKEY=blt972.....
 CS_MANAGEMENTOKEN=cs....
+CS_USERNAME=someone@something.com
+CS_PASSWORD=password
 
-export CS_REGION CS_APIKEY CS_MANAGEMENTOKEN
+export CS_REGION CS_APIKEY CS_MANAGEMENTOKEN CS_USERNAME CS_PASSWORD
 ```
 and run `source variables.env` in the terminal.
 
