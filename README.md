@@ -11,7 +11,11 @@ Scripts in this repository:
 * Publish all Entries - `publishAllEntries.py`
 * Publish all Entries of a Certain Content Type - `publishAllEntriesFromContentType.py`
 * Use a Query to Find an Entry - `queryEntries.py`
+<<<<<<< HEAD
 * Revert last Content Type change - `revertContentTypeToLastVersion.py` (New version will be identical to version-1)
+=======
+* Update a field value in bulk - `updateFieldValue.py`
+>>>>>>> e9944428047d18b02fd4266be25ca6e2000d5606
 
 Comments at the top of every script describes what it does. Feel free to extend any script to fit your use case.
 
