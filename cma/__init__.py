@@ -8,6 +8,8 @@ Environmental Variables needed:
  - CS_REGION = EU/NA (Europe/North-America)
  - CS_MANAGEMENTOKEN (Stack Management Token)
  - CS_APIKEY (Stack API Key)
+ - CS_USERNAME (Only needed for some scripts - e.g. workflow related scripts)
+ - CS_PASSWORD (Only needed for some scripts - e.g. workflow related scripts)
 '''
 import os
 from sys import exit
@@ -38,10 +40,46 @@ if not apiKey:
     config.logging.critical('{}Stack API Key Missing as an Environment Variable. Exiting Script.{}'.format(config.RED, config.END))
     exit()
 
-managementTokenHeader = {
-        'authorization': managementToken,
+username = os.getenv('CS_USERNAME', None)
+password = os.getenv('CS_PASSWORD', None)
+
+def login():
+    '''
+    Login to get authtoken
+    sample url: https://api.contentstack.io/v3/user-session
+    '''
+    if not username or not password:
+        config.logging.warning('{}No user/password defined in environmental variables. Not possible to execute some parts of this script.{}'.format(config.YELLOW, config.END))
+        return None
+    body = {
+	    'user': {
+		    'email': username,
+		    'password': password
+	    }
+    }
+    url = '{}v3/user-session'.format(region)
+    res = requests.post(url, headers={'Content-Type': 'application/json'}, json=body)
+    if res.status_code in (200,201):
+        config.logging.info('Login successful.')
+        return res.json()['user']['authtoken']
+    else:
+        config.logging.error('{}{}{}'.format(config.RED, res.json()['error_message'], config.END))
+        return None
+
+if username and password:
+    authToken = login()
+    authTokenHeader = {
+        'Content-Type': 'application/json',
+        'authtoken': login(),
         'api_key': apiKey
     }
+else:
+    authTokenHeader = None
+
+managementTokenHeader = {
+    'authorization': managementToken,
+    'api_key': apiKey
+}
 
 def logUrl(url):
     '''
@@ -131,19 +169,30 @@ def typicalUpdate(body, url, endpointName='', retry=False, msg=''):
     config.logging.error('{}Failed updating {} - {}{}'.format(config.RED, endpointName, str(res.text), config.END))
     return logError(endpointName, '', url, res) # Empty string was name variable
 
-def typicalCreate(body, url, endpointName='', retry=False, msg='created'):
+def typicalCreate(body, url, endpointName='', retry=False, msg='created', token='mgmt'):
     '''
     Combining identical POST methods into one
+
+    - If token == mgmt -> It uses the Management Token
+    - If token == auth -> It uses the Auth Token
+
     '''
     logUrl(url)
-    res = requests.post(url, headers=managementTokenHeader, json=body)
+    if token == 'auth':
+        headers = authTokenHeader
+        if not headers:
+            config.logging.critical('{}Credentials not defined - Exiting request{}'.format(config.RED, config.END))
+            return None
+    else:
+        headers = managementTokenHeader
+    res = requests.post(url, headers=headers, json=body)
     if res.status_code in (200, 201):
         config.logging.info(str(endpointName) + ' ' + msg)
         return res.json()
     elif (res.status_code == 429) and not retry:
         config.logging.warning('{}We are getting rate limited. Retrying in 2 seconds.{}'.format(config.YELLOW, config.END))
         sleep(2) # We'll retry once in a second if we're getting rate limited.
-        return typicalCreate(body, url, endpointName, True, msg)
+        return typicalCreate(body, url, endpointName, True, msg, token)
     config.logging.error('{}Failed {} {} - {}{}'.format(config.RED, msg, endpointName, str(res.text), config.END))
     return logError(endpointName, '', url, res) # Empty string was name variable
 
@@ -278,3 +327,22 @@ def updateContentType(body, contentType):
     '''
     url = '{}v3/content_types/{}'.format(region, contentType)
     return typicalUpdate(body, url, 'content_type')
+
+def setWorkflowStage(contentType, uid, locale, workflow, assignUsers=[], assignRoles=[], notify=False):
+    '''
+    Moves an entry to a certain workflow stage
+    sample url: https://api.contentstack.io/v3/content_types/{{content_type_uid}}/entries/{{entry_uid}}/workflow?locale={locale_code}
+    '''
+    url = '{}v3/content_types/{}/entries/{}/workflow?locale={}'.format(region, contentType, uid, locale)
+    body = {
+	"workflow": {
+		"workflow_stage": {
+			"notify": notify,
+			"uid": workflow,
+			"assigned_to": assignUsers,
+			"assigned_by_roles": assignRoles		
+		    }
+	    }
+    }
+    return typicalCreate(body, url, 'workflow', False, 'updated', 'auth') # This is using the 'auth' -> AuthToken
+
