@@ -6,6 +6,7 @@ Scripts in this repository:
 * Copy Field Value - `copyFieldValue.py` (In case you want to rename the field uid or clone a value to a different field)
 * Create an Entry - `createEntry.py`
 * Delete All Entries of a Content Type - `deleteAllEntriesofContentType.py` (Be careful with this one)
+* Find and Replace - `findAndReplace.py` (Finds value in a field, replaces with a new value. Optionally updates and publishes the entry)
 * Get all entries - `getAllEntries.py`
 * Get a Single Entry - `getSingleEntry.py`
 * Publish all Entries - `publishAllEntries.py`
