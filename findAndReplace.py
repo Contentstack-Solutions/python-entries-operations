@@ -1,6 +1,8 @@
 '''
 Find and Replace values in fields. Only works on simple fields but can be extended using queries to search within groups and modular blocks.
 
+Uses a Management Token - Can be changed to use an authtoken instead if needed.
+
 ---
 In case of regular expression search:
 See more:
@@ -34,7 +36,7 @@ contentType = 'landing_page' # UID of the content type that will be iterated ove
 fieldUid = 'title' # Field UID where value will be searched and optionally updated if found.
 
 searchString = 'Hello' # The value you are looking for.
-replaceString = 'goodbye' # The value you want to replace with.
+replaceString = 'Goodbye' # The value you want to replace with.
 
 
 publishEntries = False # If set to True, it tries to publish the entries. Else, it just updates them
@@ -68,4 +70,4 @@ else:
         
 
 if not updateContentstack:
-    config.logging.info('Not updating Contentstack - Just FYI for testing purposes. Modify the "updateContentstack" variable in code to update entries.'
+    config.logging.info('Not updating Contentstack - Just FYI for testing purposes. Modify the "updateContentstack" variable in code to update entries.')
