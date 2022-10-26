@@ -212,7 +212,7 @@ def typicalDelete(url, endpointName='', retry=False):
     config.logging.error('{}Failed delete {} - {}{}'.format(config.RED, endpointName, str(res.text), config.END))
     return logError(endpointName, '', url, res) # Empty string was name variabl
 
-def getAllLanguages(apiKey, token, region):
+def getAllLanguages():
     '''
     Gets all languages
     sample url: https://api.contentstack.io/v3/locales?include_count={boolean_value}
@@ -250,6 +250,14 @@ def getSingleEntry(contentType, locale, uid, version=None):
     url = '{region}v3/content_types/{contentType}/entries/{uid}?locale={locale}&include_workflow=true&include_publish_details=true'.format(region=region, contentType=contentType, uid=uid, locale=locale)
     if version:
         url = url + '&version={}'.format(version)
+    return typicalGetSimple(url)
+
+def getEntryLanguages(contentType, uid):
+    '''
+    Knowing where the entry has been localised
+    sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries/{entry_uid}/locales
+    '''
+    url = '{region}v3/content_types/{contentType}/entries/{uid}/locales'.format(region=region, contentType=contentType, uid=uid)
     return typicalGetSimple(url)
 
 def getAllContentTypes():

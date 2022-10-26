@@ -7,13 +7,14 @@ Scripts in this repository:
 * Create an Entry - `createEntry.py`
 * Delete All Entries of a Content Type - `deleteAllEntriesofContentType.py` (Be careful with this one)
 * Find and Replace - `findAndReplace.py` (Finds value in a field, replaces with a new value. Optionally updates and publishes the entry)
-* Get all entries - `getAllEntries.py`
+* Get all Entries - `getAllEntries.py`
 * Get a Single Entry - `getSingleEntry.py`
 * Publish all Entries - `publishAllEntries.py`
 * Publish all Entries of a Certain Content Type - `publishAllEntriesFromContentType.py`
 * Use a Query to Find an Entry - `queryEntries.py`
 * Update a field value in bulk - `updateFieldValue.py`
-* Bulk update workflow stage on entries based on search query - `bulkUpdateWorkflowStage.py`
+* Bulk update workflow stage on Entries based on search query - `bulkUpdateWorkflowStage.py`
+* Clone a Content Type and all its Entries to a new Content Type - `cloneContentType.py`
 
 Comments at the top of every script describes what it does. Feel free to extend any script to fit your use case.
 
