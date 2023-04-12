@@ -304,7 +304,7 @@ def updateEntry(contentType, locale, body):
     url = '{region}v3/content_types/{contentType}/entries/{uid}?locale={locale}'.format(region=region, contentType=contentType, uid=uid, locale=locale)
     return typicalUpdate(body, url, 'entry', False, uid  + ' - ' + locale)
 
-def publishEntry(contentType, uid, environments, locales, locale, version):
+def publishEntry(contentType, uid, environments, locales, locale, version=None):
     '''
     Publishes an entry
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries/{entry_uid}/publish
@@ -315,9 +315,10 @@ def publishEntry(contentType, uid, environments, locales, locale, version):
             'environments': environments,
             'locales': locales
         },
-        'locale': locale,
-        'version': version
+        'locale': locale
     }
+    if version:
+        body['version'] = version
     return typicalCreate(body, url, 'entry', False, uid + ' - ' + locale + ' published')
     
 def createContentType(body):
