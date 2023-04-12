@@ -1,5 +1,5 @@
 '''
-Publishes ALL entries from ALL content types in a language to one or more environments. Optionally also publishes the entries in other locales (They cannot be localised).
+Publishes entries from an array of entry uids
 
 Note: This is not bulk publishing
 oskar.eiriksson@contentstack.com
