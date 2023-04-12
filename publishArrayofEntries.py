@@ -15,6 +15,8 @@ locale = 'en-us' # The source locale to be published
 locales = [locale] # You can append to this if you want to publish the 'locale' from above to more locales.
 
 for uid in entryUids:
-    cma.publishEntry(contentType, uid, environments, locales, locale) # Iterating over the entry uids and publishing one at a time
-    else:
-        config.logging.info('No Entries in Content Type: {}'.format(contentType['uid']))
+    try:
+        cma.publishEntry(contentType, uid, environments, locales, locale) # Iterating over the entry uids and publishing one at a time
+        config.logging.info('Published entry: ' + uid)
+    except Exception as e:
+        config.logging.error('Failed to publish entry: ' + uid + ' - ' + str(e))
