@@ -11,6 +11,7 @@ Scripts in this repository:
 * Get a Single Entry - `getSingleEntry.py`
 * Publish all Entries - `publishAllEntries.py`
 * Publish all Entries of a Certain Content Type - `publishAllEntriesFromContentType.py`
+* Publish entries in an array - `publishArrayofEntries.py`
 * Use a Query to Find an Entry - `queryEntries.py`
 * Update a field value in bulk - `updateFieldValue.py`
 * Bulk update workflow stage on Entries based on search query - `bulkUpdateWorkflowStage.py`
