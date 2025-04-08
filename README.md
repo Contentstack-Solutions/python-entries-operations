@@ -7,6 +7,7 @@ Scripts in this repository:
 * Create an Entry - `createEntry.py`
 * Delete All Entries of a Content Type - `deleteAllEntriesofContentType.py` (Be careful with this one)
 * Find and Replace - `findAndReplace.py` (Finds value in a field, replaces with a new value. Optionally updates and publishes the entry)
+* Find and Replace Advanced - `findAndReplace_Advanced.py` (Advanced find - does not update entry as of now - just finds and replace and shows the modification)
 * Get all Entries - `getAllEntries.py`
 * Get a Single Entry - `getSingleEntry.py`
 * Publish all Entries - `publishAllEntries.py`
