@@ -101,13 +101,14 @@ def logError(endpointName, name, url, res, msg='creating/updating'):
 def iterateURL(url, skip=0):
     return url + '&skip={}'.format(skip)
 
-def typicalGetSimple(url, environment=None):
+def typicalGetSimple(url, environment=None, branch="main"):
     '''
     Re-usable function to GET objects that never include more than 100 items
     '''
     if environment:
         url = url + '&environment={}'.format(environment)
     logUrl(url)
+    managementTokenHeader['branch'] = branch
     res = requests.get(url, headers=managementTokenHeader)
     if res.status_code in (200, 201):
         config.logging.debug('Result: {}'.format(res.json()))
@@ -118,7 +119,7 @@ def typicalGetSimple(url, environment=None):
     config.logging.error('{red}Error Message: {txt}{end}'.format(red=config.RED, txt=res.text, end=config.END))
     return None
 
-def typicalGetIterate(url, dictKey, environment=None):
+def typicalGetIterate(url, dictKey, environment=None, branch="main"):
     '''
     Re-usable function to GET objects that might have more than 100 items in it
     '''
@@ -132,6 +133,7 @@ def typicalGetIterate(url, dictKey, environment=None):
     while skip <= count:
         url = iterateURL(originalURL, skip)
         logUrl(url)
+        managementTokenHeader['branch'] = branch
         res = requests.get(url, headers=managementTokenHeader)
         if res.status_code in (200, 201):
             if 'count' in res.json(): # Did get a KeyError once... when there was nothing there.
@@ -153,11 +155,12 @@ def typicalGetIterate(url, dictKey, environment=None):
     config.logging.info('No {} results'.format(dictKey))
     return None
 
-def typicalUpdate(body, url, endpointName='', retry=False, msg=''):
+def typicalUpdate(body, url, endpointName='', retry=False, msg='', branch="main"):
     '''
     Combining identical PUT methods into one
     '''
     logUrl(url)
+    managementTokenHeader['branch'] = branch
     res = requests.put(url, headers=managementTokenHeader, json=body)
     if res.status_code in (200, 201):
         config.logging.info(str(endpointName) + ' ' + msg + ' updated')
@@ -169,7 +172,7 @@ def typicalUpdate(body, url, endpointName='', retry=False, msg=''):
     config.logging.error('{}Failed updating {} - {}{}'.format(config.RED, endpointName, str(res.text), config.END))
     return logError(endpointName, '', url, res) # Empty string was name variable
 
-def typicalCreate(body, url, endpointName='', retry=False, msg='created', token='mgmt'):
+def typicalCreate(body, url, endpointName='', retry=False, msg='created', token='mgmt', branch="main"):
     '''
     Combining identical POST methods into one
 
@@ -185,6 +188,7 @@ def typicalCreate(body, url, endpointName='', retry=False, msg='created', token=
             return None
     else:
         headers = managementTokenHeader
+    headers['branch'] = branch
     res = requests.post(url, headers=headers, json=body)
     if res.status_code in (200, 201):
         config.logging.info(str(endpointName) + ' ' + msg)
@@ -196,11 +200,12 @@ def typicalCreate(body, url, endpointName='', retry=False, msg='created', token=
     config.logging.error('{}Failed {} {} - {}{}'.format(config.RED, msg, endpointName, str(res.text), config.END))
     return logError(endpointName, '', url, res) # Empty string was name variable
 
-def typicalDelete(url, endpointName='', retry=False):
+def typicalDelete(url, endpointName='', retry=False, branch="main"):
     '''
     Combining identical DELETE methods into one
     '''
     logUrl(url)
+    managementTokenHeader['branch'] = branch
     res = requests.delete(url, headers=managementTokenHeader)
     if res.status_code in (200, 201):
         config.logging.info(str(endpointName) + ' deleted')
@@ -212,13 +217,13 @@ def typicalDelete(url, endpointName='', retry=False):
     config.logging.error('{}Failed delete {} - {}{}'.format(config.RED, endpointName, str(res.text), config.END))
     return logError(endpointName, '', url, res) # Empty string was name variabl
 
-def getAllLanguages():
+def getAllLanguages(branch="main"):
     '''
     Gets all languages
     sample url: https://api.contentstack.io/v3/locales?include_count={boolean_value}
     '''
     url = '{region}v3/locales?include_count=true'.format(region=region)
-    return typicalGetIterate(url, 'locales')
+    return typicalGetIterate(url, 'locales', branch)
 
 def getAllEnvironments(apiKey, token, region):
     '''
@@ -226,9 +231,9 @@ def getAllEnvironments(apiKey, token, region):
     sample url: https://api.contentstack.io/v3/environments?include_count={boolean_value}&asc={field_uid}&desc={field_uid}
     '''
     url = '{region}v3/environments?include_count=true'.format(region=region)
-    return typicalGetIterate(url, 'environments')
+    return typicalGetIterate(url, 'environments', branch)
 
-def getAllEntries(contentType, locale, environment=None, query=None):
+def getAllEntries(contentType, locale, environment=None, query=None, branch="main"):
     '''
     Gets all entries
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries?locale={language_code}&include_workflow={boolean_value}&include_publish_details={boolean_value}
@@ -240,9 +245,9 @@ def getAllEntries(contentType, locale, environment=None, query=None):
     url = '{region}v3/content_types/{contentType}/entries?locale={locale}&include_workflow=true&include_publish_details=true&include_count=true'.format(region=region, contentType=contentType, locale=locale)
     if query:
         url = url + '&query={}'.format(query)
-    return typicalGetIterate(url, 'entries', environment)
+    return typicalGetIterate(url, 'entries', environment, branch)
 
-def getSingleEntry(contentType, locale, uid, version=None):
+def getSingleEntry(contentType, locale, uid, version=None, branch="main"):
     '''
     Gets a single entry
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries/{entry_uid}?version={version_number}&locale={language_code}&include_workflow={boolean_value}&include_publish_details={boolean_value}
@@ -250,26 +255,26 @@ def getSingleEntry(contentType, locale, uid, version=None):
     url = '{region}v3/content_types/{contentType}/entries/{uid}?locale={locale}&include_workflow=true&include_publish_details=true'.format(region=region, contentType=contentType, uid=uid, locale=locale)
     if version:
         url = url + '&version={}'.format(version)
-    return typicalGetSimple(url)
+    return typicalGetSimple(url, branch)
 
-def getEntryLanguages(contentType, uid):
+def getEntryLanguages(contentType, uid, branch="main"):
     '''
     Knowing where the entry has been localised
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries/{entry_uid}/locales
     '''
     url = '{region}v3/content_types/{contentType}/entries/{uid}/locales'.format(region=region, contentType=contentType, uid=uid)
-    return typicalGetSimple(url)
+    return typicalGetSimple(url, None, branch)
 
-def getAllContentTypes():
+def getAllContentTypes(branch="main"):
     '''
     Gets all content types
     sample url: https://api.contentstack.io/v3/content_types?include_count={boolean_value}&include_global_field_schema={boolean_value}
     '''
     url = '{}v3/content_types?include_count=true&include_global_field_schema=true'.format(region)
-    return typicalGetIterate(url, 'content_types')
+    return typicalGetIterate(url, 'content_types', branch)
 
 
-def getSingleContentType(contentType, version=None):
+def getSingleContentType(contentType, version=None, branch="main"):
     '''
     Gets a single content type
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}?version={content_type_version}
@@ -277,34 +282,34 @@ def getSingleContentType(contentType, version=None):
     url = '{region}v3/content_types/{contentType}'.format(region=region, contentType=contentType)
     if version:
         url = url + '?version={}'.format(version)
-    return typicalGetSimple(url)
+    return typicalGetSimple(url, branch)
 
-def deleteEntry(contentType, locale, uid, deleteLocalized):
+def deleteEntry(contentType, locale, uid, deleteLocalized, branch="main"):
     '''
     Deletes an entry
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries/{entry_uid}?locale={locale_code}&delete_all_localized={boolean_value}
     '''
     url = '{region}v3/content_types/{contentType}/entries/{uid}?locale={locale}&delete_all_localized={deleteLocalized}'.format(region=region, contentType=contentType, uid=uid, locale=locale, deleteLocalized=str(deleteLocalized).lower())
-    return typicalDelete(url, 'entry')
+    return typicalDelete(url, 'entry', branch)
 
-def createEntry(contentType, locale, body):
+def createEntry(contentType, locale, body, branch="main"):
     '''
     Creates an Entry
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries?locale={locale_code}
     '''
     url = '{region}v3/content_types/{contentType}/entries?locale={locale}'.format(region=region, contentType=contentType, locale=locale)
-    return typicalCreate(body, url, 'Entry')
+    return typicalCreate(body, url, 'Entry', branch)
 
-def updateEntry(contentType, locale, body):
+def updateEntry(contentType, locale, body, branch="main"):
     '''
     Updates an entry
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries/{entry_uid}?locale={locale_code}
     '''
     uid = body['entry']['uid']
     url = '{region}v3/content_types/{contentType}/entries/{uid}?locale={locale}'.format(region=region, contentType=contentType, uid=uid, locale=locale)
-    return typicalUpdate(body, url, 'entry', False, uid  + ' - ' + locale)
+    return typicalUpdate(body, url, 'entry', False, uid  + ' - ' + locale, branch)
 
-def publishEntry(contentType, uid, environments, locales, locale, version=None):
+def publishEntry(contentType, uid, environments, locales, locale, version=None, branch="main"):
     '''
     Publishes an entry
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}/entries/{entry_uid}/publish
@@ -319,25 +324,25 @@ def publishEntry(contentType, uid, environments, locales, locale, version=None):
     }
     if version:
         body['version'] = version
-    return typicalCreate(body, url, 'entry', False, uid + ' - ' + locale + ' published')
+    return typicalCreate(body, url, 'entry', False, uid + ' - ' + locale + ' published', branch)
     
-def createContentType(body):
+def createContentType(body, branch="main"):
     '''
     Creates a content type
     sample url: https://api.contentstack.io/v3/content_types
     '''
     url = '{}v3/content_types'.format(region)
-    return typicalCreate(body, url, 'content_type')
+    return typicalCreate(body, url, 'content_type', branch)
 
-def updateContentType(body, contentType):
+def updateContentType(body, contentType, branch="main"):
     '''
     Updates a content type
     sample url: https://api.contentstack.io/v3/content_types/{content_type_uid}
     '''
     url = '{}v3/content_types/{}'.format(region, contentType)
-    return typicalUpdate(body, url, 'content_type')
+    return typicalUpdate(body, url, 'content_type', branch)
 
-def setWorkflowStage(contentType, uid, locale, workflow, assignUsers=[], assignRoles=[], notify=False):
+def setWorkflowStage(contentType, uid, locale, workflow, assignUsers=[], assignRoles=[], notify=False, branch="main"):
     '''
     Moves an entry to a certain workflow stage
     sample url: https://api.contentstack.io/v3/content_types/{{content_type_uid}}/entries/{{entry_uid}}/workflow?locale={locale_code}
@@ -353,5 +358,5 @@ def setWorkflowStage(contentType, uid, locale, workflow, assignUsers=[], assignR
 		    }
 	    }
     }
-    return typicalCreate(body, url, 'workflow', False, 'updated', 'auth') # This is using the 'auth' -> AuthToken
+    return typicalCreate(body, url, 'workflow', False, 'updated', 'auth', branch) # This is using the 'auth' -> AuthToken
 
